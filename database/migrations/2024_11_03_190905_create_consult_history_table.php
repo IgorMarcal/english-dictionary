@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('consult_history', function (Blueprint $table) {
             $table->id();
+            $table->uuid('user_id')->constrained()->onDelete('cascade');
             $table->string('word', 255);
             $table->timestamps();
         });

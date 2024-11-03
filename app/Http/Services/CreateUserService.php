@@ -2,13 +2,11 @@
 
 namespace App\Http\Services;
 
-use App\Models\PersonalAccessToken;
 use App\Models\Users;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
 
 class CreateUserService 
 {

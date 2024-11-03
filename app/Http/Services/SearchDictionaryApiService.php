@@ -7,7 +7,10 @@ use Illuminate\Http\Request;
 
 class SearchDictionaryApiService 
 {
-    public function __construct(private Request $request){}
+    private string $user;
+    public function __construct(private Request $request){
+        $this->user = $request->attributes->get('auth_user');
+    }
 
     // public function toSearch(): array{
         
@@ -35,7 +38,9 @@ class SearchDictionaryApiService
     public function toSearchWord(string $word): array{
         
         try{
-            $consult = app()->makeWith(ConsultWordService::class,[]);
+            $consult = app()->makeWith(ConsultWordService::class,[
+                'request'   => $this->request
+            ]);
 
             $consultResponse = $consult->toGetWord($word);
             if(!$consultResponse['status']){
@@ -47,7 +52,7 @@ class SearchDictionaryApiService
                 $response['message'] = 'Word already saved as favorite';
 
                 if(!FavoritesWord::where('word','=', $word)->first()){
-                    FavoritesWord::firstOrCreate(['word'=>$word]);
+                    FavoritesWord::firstOrCreate(['word' => $word, 'user_id' => $this->user]);
                     $response['message'] = 'Word saved as favorite';
                 }
             }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Services\TokenValidator;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;
@@ -16,39 +17,25 @@ class EnsureTokenIsValid
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+
+    protected $tokenValidator;
+
+    public function __construct(TokenValidator $tokenValidator)
+    {
+        $this->tokenValidator = $tokenValidator;
+    }
+
     public function handle(Request $request, Closure $next)
     {
-        try{
-            $token = $request->bearerToken();
-        
-            if (!$token) {
-                throw new \Exception('Token não fornecido', 401);
-            }
-    
-            $parts = explode('|', $token);
-            if (count($parts) !== 2) {
-                throw new \Exception('Token inválido.', 401);
-            }
-    
-            $plainTextToken = $parts[1];
-    
-            $personalAccessToken = PersonalAccessToken::where('token', hash('sha256', $plainTextToken))->first();
-    
-            if (!$personalAccessToken) {
-                throw new \Exception('Token inválido.', 401);
-            }
+        $token = $request->bearerToken();
 
-            if ($personalAccessToken->expires_at && $personalAccessToken->expires_at < now()) {
-                throw new \Exception('Token expirado.', 401);
-            }
-            
-            return $next($request);
-
-        }catch(\Exception $e){
-            return response()->json([
-                'message' => $e->getMessage()
-            ], $e->getCode());
+        try {
+            $user = $this->tokenValidator->validate($token);
+            $request->attributes->add(['auth_user' => $user]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 401);
         }
-        
+
+        return $next($request);
     }
 }
