@@ -25,7 +25,7 @@ class CreateUserService
         try{
             $searchAccount = Users::where('email' , '=', $this->email)->first();
             if($searchAccount){
-                throw new \Exception("User already exists!", 409);
+                throw new \Exception("User already exists!");
             }
             
             $uuid = Str::uuid();

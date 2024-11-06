@@ -47,7 +47,7 @@ class SearchDictionaryApiService
                 throw new \Exception($consultResponse['response']);
             }
             $response = [];
-            $response['message'] = 'Word retrieved successfully';
+            $response['message'] = 'Search retrieved successfully';
             if($this->request->segment(5) === 'favorite'){
                 $response['message'] = 'Word already saved as favorite';
 
